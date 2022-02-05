@@ -1,0 +1,139 @@
+set $mod Mod1
+set $win Mod4
+
+smart_gaps on
+smart_borders on
+gaps inner 8
+gaps outer 0
+
+default_border pixel 2
+default_floating_border pixel 2
+
+focus_follows_mouse no
+
+font pango:Droid Sans Mono 7
+
+exec --no-startup-id feh --bg-fill ~/Pictures/shit.jpg 
+exec --no-startup-id redshift
+
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +1% && killall -SIGUSR1 i3status
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -1% && killall -SIGUSR1 i3status
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && killall -SIGUSR1 i3status
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl s 1%+
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl s 1%-
+bindsym XF86AudioPrev exec --no-startup-id playerctl previous
+bindsym XF86AudioPlay exec --no-startup-id playerctl play-pause
+bindsym XF86AudioNext exec --no-startup-id playerctl next
+
+bindsym --release $win+s exec scrot-custom
+bindsym --release $win+l exec sxlock
+
+set $mode_system sysmgr (e) Logout (h) Hibernate (r) Reboot (Shift+s) Shutdown (s) Suspend
+mode "$mode_system" {
+    bindsym e exec --no-startup-id i3-msg exit, mode "default"
+    bindsym h exec --no-startup-id $Locker && systemctl hibernate, mode "default"
+    bindsym r exec --no-startup-id systemctl reboot, mode "default"
+    bindsym Shift+s exec --no-startup-id systemctl poweroff -i, mode "default"
+    bindsym s exec systemctl suspend, mode "default"
+
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+Pause mode "$mode_system"
+
+floating_modifier $mod
+
+bindsym $mod+Return exec st
+
+bindsym $mod+q kill
+
+bindsym $mod+d exec dmenu_run
+bindsym $mod+Shift+d exec clipmenu
+
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+bindsym $mod+e focus mode_toggle
+
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+bindsym $mod+Tab workspace 0
+bindsym $win+Tab workspace ?
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $win+1 workspace 6
+bindsym $win+2 workspace 7
+bindsym $win+3 workspace 8
+bindsym $win+4 workspace 9
+
+bindsym $mod+Shift+Tab move container to workspace 0
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $win+Shift+1 move container to workspace 6
+bindsym $win+Shift+2 move container to workspace 7
+bindsym $win+Shift+3 move container to workspace 8
+bindsym $win+Shift+4 move container to workspace 9
+bindsym $win+Shift+Tab move container to workspace ?
+
+bindsym $mod+Shift+space move scratchpad
+bindsym $mod+space scratchpad show
+
+set $mode_wm winmgr (h) horizontal (v) vertical (f) fullscreen (s) stacking (w) tabbed (e) split (SPC) floating (LRUD) resize (c) reload cfg (r) reload i3
+mode "$mode_wm" {
+	bindsym c reload
+	bindsym r restart
+
+        bindsym h split h
+        bindsym v split v
+
+        bindsym f fullscreen toggle
+
+        bindsym s layout stacking
+        bindsym w layout tabbed
+        bindsym e layout toggle split
+
+	bindsym space floating toggle
+
+        bindsym Left resize shrink width 5 px or 5 ppt
+        bindsym Down resize grow height 5 px or 5 ppt
+        bindsym Up resize shrink height 5 px or 5 ppt
+        bindsym Right resize grow width 5 px or 5 ppt
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+	bindsym $mod+w mode "default"
+}
+
+bindsym $mod+w mode "$mode_wm"
+
+bar {
+	colors {
+		background          #000000
+		focused_workspace   #a99368 #000000 #ffffff
+		urgent_workspace    #ff6666 #000000 #ffffff
+		inactive_workspace  #000000 #000000 #ffffff
+	}
+	
+	workspace_min_width 20
+
+    	font pango:Droid Sans Mono, Font Awesome 5 Free 9
+    	position top
+    	workspace_buttons yes
+    	status_command i3status-rs
+
+	bindsym button1 nop
+	bindsym button2 nop
+	bindsym button3 nop
+	
+}

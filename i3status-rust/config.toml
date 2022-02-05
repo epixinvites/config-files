@@ -1,0 +1,83 @@
+theme = "plain"
+
+[icons]
+name = "awesome5"
+
+[[block]]
+block = "uptime"
+
+[[block]]
+block = "github"
+format = "{total}"
+hide_if_total_is_zero = true
+info = ["total"]
+
+[[block]]
+block = "pacman"
+interval = 600
+format = "{pacman}/{aur} pending updates"
+format_singular = "{pacman}/{aur} pending update"
+format_up_to_date = "Up to date"
+aur_command = "yay -Qua"
+
+[[block]]
+block = "music"
+buttons = ["play", "next"]
+player = "ncspot"
+max_width = 18
+dynamic_width = true
+marquee_interval = 5
+marquee_speed = 0.5
+hide_when_empty = true
+
+[[block]]
+block = "disk_space"
+path = "/"
+info_type = "available"
+interval = 1
+warning = 20.0
+alert = 10.0
+format = "{icon} {available:6}"
+
+[[block]]
+block = "memory"
+interval = 1
+display_type = "memory"
+format_mem = "{mem_avail;M:4}"
+format_swap = "{swap_free;M:4}"
+
+[[block]]
+block = "load"
+interval = 1
+format = "{1m:4}"
+
+[[block]]
+block = "cpu"
+interval = 1
+format = "{utilization}"
+
+[[block]]
+block = "temperature"
+collapsed = false
+interval = 1
+format = "{average}"
+chip = "coretemp-isa-0000"
+
+[[block]]
+block = "net"
+device = "wlp1s0"
+format = "{ssid} {signal_strength} {speed_down;K*B} {speed_up;K*B}"
+interval = 1
+
+[[block]]
+block = "battery"
+interval = 1
+format = "{percentage} {time}"
+
+[[block]]
+block = "sound"
+
+[[block]]
+block = "time"
+interval = 1
+format = "%a %d/%m %H:%M:%S"
