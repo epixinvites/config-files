@@ -5,13 +5,13 @@ let g:neovide_cursor_animation_length=0.0
 " Plugin initialization
 call plug#begin('~/.config/nvim/plugged')
 Plug 'olimorris/onedarkpro.nvim'
-Plug 'tabnine/YouCompleteMe', { 'do': './install.py' }
-Plug 'cohama/lexima.vim'
+Plug 'tabnine/YouCompleteMe', { 'do': './install.py' } " switch to coc.nvim after this breaks
+" Plug 'cohama/lexima.vim'
+Plug 'windwp/nvim-autopairs'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-fugitive'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'ntpeters/vim-better-whitespace' " :StripWhitespace
+Plug 'glepnir/galaxyline.nvim' , {'branch': 'main'}
+Plug 'jdhao/whitespace.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'folke/which-key.nvim'
@@ -54,6 +54,7 @@ set foldexpr=nvim_treesitter#foldexpr()
 set foldlevelstart=99
 set foldenable
 
+let g:ycm_min_num_of_chars_for_completion = 3
 let g:ycm_key_list_stop_completion = ['<C-x>']
 let g:ycm_filetype_whitelist = { 'cpp':1 }
 let g:ycm_add_preview_to_completeopt = 1
@@ -76,22 +77,12 @@ let g:ycm_max_diagnostics_to_display = 0
 let g:lexima_enable_basic_rules = 1
 let g:lexima_enable_newline_rule = 1
 
-let g:airline_powerline_fonts = 1
-let g:airline_theme = 'deus'
-let g:airline#extensions#ycm#enabled = 1
-
-let g:better_whitespace_enabled = 1
-let g:strip_whitespace_on_save = 1
-let g:strip_whitespace_confirm = 0
-let g:strip_whitelines_at_eof = 1
-
 let g:nvim_tree_quit_on_open = 1
 
 let g:vmt_auto_update_on_save = 1
 
 let g:clang_format#detect_style_file = 1
 let g:clang_format#auto_format = 1
-let g:clang_format#auto_format_on_insert_leave = 1
 let g:clang_format#auto_filetypes = ["cpp", "c"]
 let g:clang_format#enable_fallback_style = 0
 
@@ -107,6 +98,15 @@ end
 
 vim.o.background = "dark" -- to load onedark
 require("onedarkpro").load{}
+
+require("nvim-autopairs").setup{
+	enable_check_bracket_line = true,
+	check_ts = true,
+	fast_wrap = {
+		map = '<M-e>',
+		offset = 0
+	}
+}
 
 require("bufferline").setup{
     options = {
@@ -136,6 +136,8 @@ require("nvim-treesitter.configs").setup {
     	additional_vim_regex_highlighting = false,
   	},
 }
+
+require("statusline-config")
 
 require("nvim-search-and-replace").setup{}
 
@@ -217,7 +219,8 @@ require("telescope").setup{
 require("project_nvim").setup{
 	patterns = { ".git", "build", ".project_root", "README*" },
 }
-require("telescope").load_extension('projects')
+require("telescope").load_extension("projects")
+require("telescope").load_extension("dap")
 
 local dap = require('dap')
 dap.adapters.cppdbg = {
@@ -255,15 +258,22 @@ function! s:JbzCppMan()
 endfunction
 command! JbzCppMan :call s:JbzCppMan()
 
-au FileType cpp nnoremap <buffer><silent><C-s>k	:JbzCppMan<CR>
-au FileType cpp nnoremap <buffer><C-s>b			:Dispatch! cd build/ && cmake .. && make -j6<CR>
+autocmd BufWritePost * StripTrailingWhitespace
+
+au FileType cpp map 		<buffer><silent><C-s>k	:JbzCppMan<CR>
+au FileType cpp nnoremap 	<buffer><C-s>b			:Dispatch! cd build/ && cmake .. && make -j6<CR>
+au FileType cpp nnoremap 	<buffer><F5>			:lua require("dap").continue()<CR>
+au FileType cpp nnoremap 	<buffer><silent><F11>	:lua require("dap").toggle_breakpoint()<CR>
+au FileType cpp nnoremap 	<buffer><silent><F12>	:lua require("dap").repl.open()<CR>
+
+inoremap 	<C-f>				<cmd><Esc>:lua require("nvim-autopairs.fastwrap").show()<CR>
 
 nnoremap	<leader>G			:Gpl<CR>
 
 nnoremap	<C-s>B				:!cmp-cpp --silent
 nnoremap 	<silent><C-s>t		:NvimTreeToggle<CR>
 nnoremap    <silent><C-s>s      :Telescope projects<CR>
-nnoremap 	<silent><C-s>w		:StripWhitespace<CR>
+nnoremap 	<silent><C-s>w		:StripTrailingWhitespace<CR>
 nnoremap	<silent><C-s>f		:FormatWrite<CR>
 
 nnoremap	<silent>]b  		:BufferLineCycleNext<CR>
