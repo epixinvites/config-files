@@ -6,7 +6,6 @@ let g:neovide_cursor_animation_length=0.0
 call plug#begin('~/.config/nvim/plugged')
 Plug 'olimorris/onedarkpro.nvim'
 Plug 'tabnine/YouCompleteMe', { 'do': './install.py' } " switch to coc.nvim after this breaks
-" Plug 'cohama/lexima.vim'
 Plug 'windwp/nvim-autopairs'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-fugitive'
@@ -14,13 +13,13 @@ Plug 'glepnir/galaxyline.nvim' , {'branch': 'main'}
 Plug 'jdhao/whitespace.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope-media-files.nvim'
 Plug 'folke/which-key.nvim'
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'akinsho/bufferline.nvim'
 Plug 'kyazdani42/nvim-tree.lua' " https://github.com/kyazdani42/nvim-tree.lua
 Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 's1n7ax/nvim-search-and-replace' " https://github.com/s1n7ax/nvim-search-and-replace
 Plug 'nvim-lua/popup.nvim'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 Plug 'mzlogin/vim-markdown-toc'
@@ -30,6 +29,9 @@ Plug 'ahmedkhalf/project.nvim'
 Plug 'rhysd/vim-clang-format'
 Plug 'antoyo/vim-licenses'
 Plug 'mfussenegger/nvim-dap'
+Plug 'renerocksai/telekasten.nvim'
+Plug 'renerocksai/calendar-vim'
+Plug 'brooth/far.vim'		" Search and replace -- https://github.com/brooth/far.vim
 call plug#end()
 
 syntax on
@@ -139,8 +141,6 @@ require("nvim-treesitter.configs").setup {
 
 require("statusline-config")
 
-require("nvim-search-and-replace").setup{}
-
 vim.o.hidden = true
 require("nvim-terminal").setup{
     window = {
@@ -214,6 +214,14 @@ require("telescope").setup{
 		live_grep = fixfolds,
 		oldfiles = fixfolds,
 	},
+  	extensions = {
+    	media_files = {
+      		-- filetypes whitelist
+      		-- defaults to {"png", "jpg", "mp4", "webm", "pdf"}
+      		filetypes = {"png", "webp", "jpg", "jpeg"},
+      		find_cmd = "rg" -- find command (defaults to `fd`)
+    	}
+  	},
 }
 
 require("project_nvim").setup{
@@ -221,6 +229,7 @@ require("project_nvim").setup{
 }
 require("telescope").load_extension("projects")
 require("telescope").load_extension("dap")
+require("telescope").load_extension("media_files")
 
 local dap = require('dap')
 dap.adapters.cppdbg = {
@@ -247,6 +256,40 @@ dap.configurations.cpp = {
 		},
 	},
 }
+
+local home = vim.fn.expand("~/zettelkasten")
+require("telekasten").setup{
+	home = home,
+	take_over_my_home = true,
+	auto_set_filetype = true,
+	dailies = home .. '/' .. 'daily',
+	weeklies = home .. '/' .. 'weekly',
+	templates = home .. '/' .. 'templates',
+	image_subdir = "img",
+	extension = ".md",
+	follow_creates_nonexisting = true,
+	dailies_create_nonexisting = true,
+	weeklies_create_nonexisting = true,
+	template_new_note = nil,
+	template_new_daily = nil,
+	template_new_weekly = nil,
+	image_link_style = "markdown",
+	plug_into_calendar = true,
+	calendar_opts = {
+		weeknm = 4,
+		calendar_monday = 0,
+		calendar_mark = 'left-fit',
+	},
+    close_after_yanking = false,
+    insert_after_inserting = true,
+	tag_notation = "#tag",
+	command_palette_theme = "dropdown",
+	show_tags_theme = "dropdown",
+	subdirs_in_links = true,
+	template_handling = "always_ask",
+	new_note_location = "prefer_home",
+	rename_update_links = true,
+}
 EOF
 
 function! s:JbzCppMan()
@@ -260,21 +303,21 @@ command! JbzCppMan :call s:JbzCppMan()
 
 autocmd BufWritePost * StripTrailingWhitespace
 
-au FileType cpp map 		<buffer><silent><C-s>k	:JbzCppMan<CR>
+au FileType cpp nnoremap 	<buffer><silent><C-s>k	:JbzCppMan<CR>
 au FileType cpp nnoremap 	<buffer><C-s>b			:Dispatch! cd build/ && cmake .. && make -j6<CR>
 au FileType cpp nnoremap 	<buffer><F5>			:lua require("dap").continue()<CR>
 au FileType cpp nnoremap 	<buffer><silent><F11>	:lua require("dap").toggle_breakpoint()<CR>
 au FileType cpp nnoremap 	<buffer><silent><F12>	:lua require("dap").repl.open()<CR>
+au FileType cpp nnoremap	<buffer><leader>G		:Gpl<CR>
+au FileType cpp inoremap 	<buffer><silent><C-f>	<Esc> l :lua require("nvim-autopairs.fastwrap").show()<CR>
+au FileType cpp nnoremap	<C-s>B					:!cmp-cpp --silent
 
-inoremap 	<C-f>				<cmd><Esc>:lua require("nvim-autopairs.fastwrap").show()<CR>
-
-nnoremap	<leader>G			:Gpl<CR>
-
-nnoremap	<C-s>B				:!cmp-cpp --silent
+nnoremap	<silent><C-s>T		:Telekasten panel<CR>
 nnoremap 	<silent><C-s>t		:NvimTreeToggle<CR>
 nnoremap    <silent><C-s>s      :Telescope projects<CR>
 nnoremap 	<silent><C-s>w		:StripTrailingWhitespace<CR>
 nnoremap	<silent><C-s>f		:FormatWrite<CR>
+
 
 nnoremap	<silent>]b  		:BufferLineCycleNext<CR>
 nnoremap	<silent>[b  		:BufferLineCyclePrev<CR>

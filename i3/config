@@ -13,7 +13,7 @@ focus_follows_mouse no
 
 font pango:Droid Sans Mono 7
 
-exec --no-startup-id feh --bg-fill ~/Pictures/shit.jpg 
+exec --no-startup-id feh --bg-fill ~/Pictures/arch.png  
 exec --no-startup-id redshift
 
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +1% && killall -SIGUSR1 i3status
